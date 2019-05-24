@@ -32,13 +32,12 @@ $(function () {
     var $cardBody = $('#card-msg');
     var $window = $( window );
 
-    const resize = () => {
+    function resize(){
       $cardChat.height($window.height() - 50 );
       $cardBody.height($window.height() - 50 );     
     }
 
-    const setUser = () => {
-      name = $inputName.val();
+    function setUser(name){
       socket.emit('addPerson', name);
       $modal.modal('hide');
     }
@@ -55,7 +54,7 @@ $(function () {
                   <div class="card">\
                     <a href="#" id="img-chat"><img class="card-img-top" src=' + e.target.result + ' style="width:100%; height:250px;"></img></a>\
                     <div class="card-body" style="padding: 0px">\
-                      <p style="border-radius: 0px;">' + data.msg + '</p>\
+                      <p style="border-radius: 0px;">' + msg + '</p>\
                     </div>\
                   </div>\
                   <span class="time_date"> ' + data.time + '</span>\
@@ -81,7 +80,7 @@ $(function () {
                   <div class="card">\
                     <a href="#" id="img-chat"><img class="card-img-top" src=' + img.src + ' style="width:100%; height:250px;"></img></a>\
                     <div class="card-body" style="padding: 0px">\
-                      <p style="border-radius: 0px;">' + data.msg + '</p>\
+                      <p style="border-radius: 0px;">' + msg + '</p>\
                     </div>\
                   </div>\
                   <span class="time_date"> ' + data.time + '</span>\
@@ -127,9 +126,9 @@ $(function () {
 
       for(var i = 0; i < group.length; i++) {
           var item = document.createElement('li');
-          item.setAttribute("class", "list-group-item");
-
-          item.appendChild(document.createTextNode(group[i]));
+          
+          item.setAttribute("class", "list-group-item");  
+          item.appendChild(document.createTextNode(" " + group[i]));
 
           list.appendChild(item);
       }
@@ -144,7 +143,7 @@ $(function () {
     const updateTyping = (msg) => {
       if (!typing) {
         typing = true;
-        socket.emit('typing', name + " está digitando!");
+        socket.emit('typing', name + "...");
       }
       lastTypingTime = (new Date()).getTime();
 
@@ -172,7 +171,7 @@ $(function () {
       }
       $('.without-img').append(
         $('\
-        <p style="position: absolute; left: 18%; top: 22%;">' + imgName + '</p>\
+          <p style="position: absolute; left: 18%; top: 22%;">' + imgName + '</p>\
         ')
       )
     }
@@ -184,14 +183,13 @@ $(function () {
       show: true
     });
 
-    $formUser.submit(() => {
-      setUser();
+    $formUser.submit( function(e){
+      if(e.currentTarget[0].value != '') {
+        name = e.currentTarget[0].value;
+        setUser(name);
+      }
       return false;
     });
-
-    $btnName.on('click', () => {
-      setUser();
-    })
 
     $sendButton.on('click', function(){
       if(img){
@@ -214,6 +212,9 @@ $(function () {
           log: false,
           image: true
         });
+        $('.without-img p').remove();
+        $('.upload-options label').removeClass('without-img');
+        img = undefined;
       } else{
         console.log('não tem alguma imagem');
         var msg = $m.val();
